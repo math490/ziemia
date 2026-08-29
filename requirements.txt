@@ -1,0 +1,9 @@
+# Ziemia Game Requirements
+# Core Game Framework
+arcade==2.3.15
+
+# Note on Optional Dependencies:
+# - pymunk: Physics engine (optional, custom implementation included)
+# - noise: Perlin noise (optional, custom implementation included)
+# These are excluded to avoid C++ compilation requirements on Windows.
+# To use these libraries, you'll need Microsoft C++ Build Tools installed.

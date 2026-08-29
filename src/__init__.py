@@ -1,0 +1,1 @@
+"""Ziemia game package."""
