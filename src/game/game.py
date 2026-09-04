@@ -3,7 +3,6 @@
 import arcade
 
 from entities.player import Player
-from world.terrain import TerrainGenerator
 
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
@@ -24,16 +23,16 @@ class ZiemiaGame(arcade.Window):
         self.jump_requested = False
         self.ground_y = 80
         self.player = Player(150, 220)
-        self.terrain = self._generate_terrain()
+        self.terrain_shapes = self._generate_terrain()
 
     def setup(self):
         """Set up the game."""
         self.player = Player(150, 220)
-        self.terrain = self._generate_terrain()
+        self.terrain_shapes = self._generate_terrain()
 
     def _generate_terrain(self):
         """Create a simple grid of terrain blocks."""
-        terrain = []
+        terrain = arcade.ShapeElementList()
         block_size = 32
         for x in range(0, SCREEN_WIDTH + block_size, block_size):
             height = 1
@@ -42,12 +41,14 @@ class ZiemiaGame(arcade.Window):
             if (x // block_size) % 12 == 0:
                 height = 3
             for y in range(height):
-                terrain.append({
-                    "x": x + block_size / 2,
-                    "y": self.ground_y + (y * block_size) + (block_size / 2),
-                    "width": block_size,
-                    "height": block_size,
-                })
+                block = arcade.create_rectangle_filled(
+                    x + block_size / 2,
+                    self.ground_y + (y * block_size) + block_size / 2,
+                    block_size,
+                    block_size,
+                    arcade.color.DARK_GREEN,
+                )
+                terrain.append(block)
         return terrain
 
     def run(self):
@@ -59,14 +60,7 @@ class ZiemiaGame(arcade.Window):
         """Render the game screen."""
         arcade.start_render()
 
-        for block in self.terrain:
-            arcade.draw_rectangle_filled(
-                block["x"],
-                block["y"],
-                block["width"],
-                block["height"],
-                arcade.color.DARK_GREEN
-            )
+        self.terrain_shapes.draw()
 
         # draw the ground line
         arcade.draw_lrtb_rectangle_filled(
@@ -97,6 +91,7 @@ class ZiemiaGame(arcade.Window):
     def on_update(self, delta_time):
         """Update game logic."""
         self.frame_count += 1
+        delta_time = min(delta_time, 1 / 30)
 
         move_direction = 0.0
         if self.left_pressed:
