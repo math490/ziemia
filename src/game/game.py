@@ -7,6 +7,7 @@ from entities.player import Player
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 SCREEN_TITLE = "Ziemia - A Terraria-style Adventure"
+PLAYER_ASSET_DIR = "assets/images/player"
 
 
 class ZiemiaGame(arcade.Window):
@@ -22,17 +23,17 @@ class ZiemiaGame(arcade.Window):
         self.right_pressed = False
         self.jump_requested = False
         self.ground_y = 80
-        self.player = Player(150, 220)
+        self.player = Player(150, 220, PLAYER_ASSET_DIR)
         self.terrain_shapes = self._generate_terrain()
 
     def setup(self):
         """Set up the game."""
-        self.player = Player(150, 220)
+        self.player = Player(150, 220, PLAYER_ASSET_DIR)
         self.terrain_shapes = self._generate_terrain()
 
     def _generate_terrain(self):
         """Create a simple grid of terrain blocks."""
-        terrain = arcade.ShapeElementList()
+        terrain = arcade.SpriteList()
         block_size = 32
         for x in range(0, SCREEN_WIDTH + block_size, block_size):
             height = 1
@@ -41,13 +42,13 @@ class ZiemiaGame(arcade.Window):
             if (x // block_size) % 12 == 0:
                 height = 3
             for y in range(height):
-                block = arcade.create_rectangle_filled(
-                    x + block_size / 2,
-                    self.ground_y + (y * block_size) + block_size / 2,
+                block = arcade.SpriteSolidColor(
                     block_size,
                     block_size,
                     arcade.color.DARK_GREEN,
                 )
+                block.center_x = x + block_size / 2
+                block.center_y = self.ground_y + (y * block_size) + block_size / 2
                 terrain.append(block)
         return terrain
 
@@ -58,33 +59,27 @@ class ZiemiaGame(arcade.Window):
 
     def on_draw(self):
         """Render the game screen."""
-        arcade.start_render()
+        self.clear()
 
         self.terrain_shapes.draw()
 
         # draw the ground line
-        arcade.draw_lrtb_rectangle_filled(
+        arcade.draw_lrbt_rectangle_filled(
             0,
             SCREEN_WIDTH,
-            self.ground_y,
             0,
+            self.ground_y,
             arcade.color.GREEN
         )
 
-        arcade.draw_rectangle_filled(
-            self.player.x,
-            self.player.y,
-            self.player.width,
-            self.player.height,
-            arcade.color.WHITE
-        )
+        self.player.draw()
 
         # Simple HUD bar to show a status area without using text rendering.
-        arcade.draw_lrtb_rectangle_filled(
+        arcade.draw_lrbt_rectangle_filled(
             20,
             220,
-            SCREEN_HEIGHT - 10,
             SCREEN_HEIGHT - 35,
+            SCREEN_HEIGHT - 10,
             arcade.color.DARK_GRAY
         )
 
@@ -126,4 +121,5 @@ class ZiemiaGame(arcade.Window):
 
     def on_mouse_press(self, x, y, button, modifiers):
         """Handle mouse button presses."""
-        pass
+        if button == arcade.MOUSE_BUTTON_LEFT:
+            self.player.attack()

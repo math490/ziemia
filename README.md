@@ -48,11 +48,11 @@ Ziemia/
 ## Dependencies
 
 ### Core Requirements
-- **arcade** (2.3.15): Modern Python game framework (2D graphics, input, timing)
+- **arcade** (3.3.3): Modern Python game framework (2D graphics, input, timing)
 - **pyglet** (2.1.16): Windowing and rendering backend
 - **pillow** (12.3.0): Image processing and sprite handling
 - **numpy** (2.5.2): Numerical operations
-- **pytiled-parser** (0.9.4a3): Tile map parsing
+- **pytiled-parser** (2.2.9): Tile map parsing
 
 ### Optional (Not included to avoid C++ compilation)
 - **pymunk**: Physics simulation library (requires Microsoft C++ Build Tools)
@@ -238,4 +238,4 @@ Network architecture, server/client implementation
 
 **Last Updated**: August 28, 2026
 **Python Version**: 3.14.2
-**Arcade Version**: 2.3.15
+**Arcade Version**: 3.3.3
