@@ -99,7 +99,21 @@ python main.py
 ```
 
 ### Controls
+- **A/D** or **Left/Right**: Movement
+- **W/Up/Space**: Jump
+- **Left Mouse**: Break and collect a nearby block
+- **Right Mouse**: Place the selected block
+- **F4**: Toggle fullscreen
+- **+/-**: Zoom camera in or out
 - **ESC**: Exit the game
+
+The window is resizable. The camera follows the player smoothly through the
+expanded world, and terrain outside the camera view is culled to reduce draw
+work. The outer ten blocks on each side are kept outside the playable and
+visible area. The world uses a block grid, and the selected hotbar item is
+consumed when a valid block is placed. Only placed solid blocks support
+vertical landing, horizontal blocking, and head collision when jumping;
+background terrain and grass are visual/non-solid.
 
 ### Planned Controls
 - **WASD**: Movement

@@ -1,7 +1,7 @@
 """Animated player sprite and movement logic."""
 
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Iterable, Optional, Tuple
 
 import arcade
 from PIL import Image
@@ -24,6 +24,18 @@ class Player(arcade.Sprite):
         self.max_health = 100
         self.mana = 50
         self.max_mana = 50
+        self.inventory = [
+            {"name": "Terra", "block": "dirt", "color": arcade.color.BROWN, "quantity": 12},
+            {"name": "Pedra", "block": "stone", "color": arcade.color.GRAY, "quantity": 8},
+            {"name": "Grama", "block": "grass", "color": arcade.color.DARK_GREEN, "quantity": 5},
+            {"name": "Tocha", "block": "dirt", "color": arcade.color.ORANGE, "quantity": 3},
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        ]
 
         self.velocity_x = 0.0
         self.velocity_y = 0.0
@@ -114,22 +126,71 @@ class Player(arcade.Sprite):
             self.animation_frame = (self.animation_frame + 1) % len(frames)
         self.texture = frames[self.animation_frame]
 
-    def update(self, delta_time: float, ground_y: float, max_x: float):
+    def update(
+        self,
+        delta_time: float,
+        ground_y: float,
+        max_x: float,
+        min_x: float = 0.0,
+        solid_blocks: Optional[Iterable[Tuple[float, float, float, float]]] = None,
+    ):
         """Update movement, gravity, bounds, and animation."""
+        previous_x = self.center_x
+        previous_y = self.center_y
         self.action_timer = max(0.0, self.action_timer - delta_time)
-        self.velocity_y -= self.gravity * delta_time
+        rectangles = tuple(solid_blocks or ())
+        half_width = self.width / 2
+        half_height = self.height / 2
+
+        # Resolve horizontal movement independently so a wall cannot be crossed
+        # because vertical movement changed the overlap state in the same frame.
         self.center_x += self.velocity_x * delta_time
+        for left, right, bottom, top in rectangles:
+            overlaps_y = self.center_y + half_height > bottom and self.center_y - half_height < top
+            overlaps_x = self.center_x + half_width > left and self.center_x - half_width < right
+            crossed_from_left = previous_x + half_width <= left and self.center_x + half_width >= left
+            crossed_from_right = previous_x - half_width >= right and self.center_x - half_width <= right
+            if not overlaps_y or (not overlaps_x and not crossed_from_left and not crossed_from_right):
+                continue
+            if self.velocity_x >= 0 and (overlaps_x or crossed_from_left):
+                self.center_x = left - half_width
+            else:
+                self.center_x = right + half_width
+            self.velocity_x = 0.0
+
+        # Apply world limits after horizontal block resolution.
+        self.center_x = max(
+            min_x + half_width,
+            min(max_x - half_width, self.center_x),
+        )
+
+        # Resolve vertical movement independently for stable floors and ceilings.
+        self.velocity_y -= self.gravity * delta_time
         self.center_y += self.velocity_y * delta_time
 
+        self.on_ground = False
+        for left, right, bottom, top in rectangles:
+            overlaps_x = self.center_x + half_width > left and self.center_x - half_width < right
+            overlaps_y = self.center_y + half_height > bottom and self.center_y - half_height < top
+            crossed_from_below = previous_y + half_height <= bottom and self.center_y + half_height >= bottom
+            crossed_from_above = previous_y - half_height >= top and self.center_y - half_height <= top
+            if not overlaps_x or (not overlaps_y and not crossed_from_below and not crossed_from_above):
+                continue
+
+            if self.velocity_y <= 0 and (overlaps_y or crossed_from_above):
+                self.center_y = top + half_height
+                self.velocity_y = 0.0
+                self.on_ground = True
+            else:
+                self.center_y = bottom - half_height
+                self.velocity_y = 0.0
+
         floor_y = ground_y + self.height / 2
-        if self.center_y <= floor_y:
+        if self.center_y <= floor_y and self.velocity_y <= 0:
             self.center_y = floor_y
             self.velocity_y = 0.0
             self.on_ground = True
-        else:
-            self.on_ground = False
 
-        self.center_x = max(self.width / 2, min(max_x - self.width / 2, self.center_x))
         self._animate(delta_time)
 
     def draw(self):
@@ -163,3 +224,33 @@ class Player(arcade.Sprite):
     def heal(self, amount: int):
         """Heal the player."""
         self.health = min(self.max_health, self.health + amount)
+
+    def collect_block(self, block_name: str) -> bool:
+        """Add a mined block to a matching or empty hotbar slot."""
+        for item in self.inventory:
+            if item and item.get("block") == block_name:
+                item["quantity"] += 1
+                return True
+
+        colors = {
+            "dirt": arcade.color.BROWN,
+            "stone": arcade.color.GRAY,
+            "grass": arcade.color.DARK_GREEN,
+        }
+        for index, item in enumerate(self.inventory):
+            if item is None:
+                self.inventory[index] = {
+                    "name": block_name.title(),
+                    "block": block_name,
+                    "color": colors.get(block_name, arcade.color.WHITE),
+                    "quantity": 1,
+                }
+                return True
+        return False
+
+    def can_collect_block(self, block_name: str) -> bool:
+        """Return whether a block can fit in the hotbar."""
+        return any(
+            item is None or item.get("block") == block_name
+            for item in self.inventory
+        )
