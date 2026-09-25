@@ -16,7 +16,7 @@ class Game:
         self.running = True
 
         self.tile_size = TILE_SIZE
-        self.world_generator = WorldGenerator(seed=42)
+        self.world_generator = WorldGenerator(seed=None)
         self.world = self.world_generator.generate(240, 80)
         self.camera = pygame.Vector2(0, 0)
 

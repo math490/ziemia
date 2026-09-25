@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from .perlin import PerlinNoise2D
 
+import random
+
 TILE_AIR = 9
 TILE_WATER = 0
 TILE_SAND = 1
@@ -39,15 +41,23 @@ TILE_COLORS = {
     TILE_CAVE: (39, 42, 49),
 }
 
-
 class WorldGenerator:
     """Gera um mapa em camadas com ar acima do terreno e solo abaixo do centro do mundo."""
 
-    def __init__(self, seed: int = 42):
+    # Mude de 'seed: int = 42' para 'seed: int = None'
+    def __init__(self, seed: int = None):
+        if seed is None:
+            # Gera um número aleatório grande para ser a semente
+            seed = random.randint(0, 999999999) 
+            
         self.seed = seed
         self.height_noise = PerlinNoise2D(seed)
         self.cave_noise = PerlinNoise2D(seed + 11)
         self.ore_noise = PerlinNoise2D(seed + 77)
+        
+        # Opcional: imprimir a seed no console. Assim, se você achar 
+        # um mundo legal, saberá qual é a seed para poder recriá-lo depois!
+        print(f"Mundo gerado com a seed: {self.seed}")
 
     def _surface_level(self, x: int, width: int, height: int) -> int:
         central_surface = int(height * 0.62)
