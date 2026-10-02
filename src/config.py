@@ -1,6 +1,6 @@
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
-TITLE = "Ziemia"
+TITLE = "Ziemia - Jogue com amigos!"
 TILE_SIZE = 16
 WORLD_SCALE = 2
 FPS = 60
