@@ -69,7 +69,7 @@ class Game:
         bottom = max(0, min(bottom, len(self.world) - 1))
 
         if player.velocity.x > 0:
-            tile_x = right + 1
+            tile_x = right
             if tile_x < len(self.world[0]):
                 for y in range(top, bottom + 1):
                     tile = self.world[y][tile_x]
