@@ -10,6 +10,8 @@ class PerlinNoise2D:
         self.permutation = list(range(256))
         self.rng.shuffle(self.permutation)
         self.permutation *= 2
+        self.offset_x = self.rng.uniform(5, 256)
+        self.offset_y = self.rng.uniform(5, 256)
 
     @staticmethod
     def fade(t: float) -> float:
@@ -51,7 +53,9 @@ class PerlinNoise2D:
         max_value = 0.0
 
         for _ in range(octaves):
-            total += self.noise(x * frequency, y * frequency) * amplitude
+            sample_x = (x + self.offset_x) * frequency
+            sample_y = (y + self.offset_y) * frequency
+            total += self.noise(sample_x, sample_y) * amplitude
             max_value += amplitude
             amplitude *= persistence
             frequency *= 2.0

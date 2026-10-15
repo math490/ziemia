@@ -224,8 +224,8 @@ class Player(pygame.sprite.Sprite):
 
         self.image = pygame.Surface((28, 42))
         self.image.fill((59, 130, 246))
-        self.rect = self.image.get_rect(topleft=(x, y))
-        self.prev_rect = self.rect.copy()
+        self.rect: pygame.Rect = self.image.get_rect(topleft=(x, y))
+        self.prev_rect: pygame.Rect = self.rect.copy()
 
         self.speed = 240.0
         self.jump_force = 520.0

@@ -9,7 +9,6 @@ Jogo 2D tipo sandbox inspirado em Terraria, em desenvolvimento com Python e Pyga
   - `config.py`: configurações gerais
   - `game.py`: loop principal e estado do jogo
   - `entities/`: entidades do mundo
-  - `ui/`: interface do jogador
   - `world/`: gerador de mapa, biomas e mundo
 - `assets/`: imagens, tiles, efeitos e sons
 - `saves/`: arquivos salvos do jogador

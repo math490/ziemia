@@ -45,7 +45,7 @@ class WorldGenerator:
     """Gera um mapa em camadas com ar acima do terreno e solo abaixo do centro do mundo."""
 
     # Mude de 'seed: int = 42' para 'seed: int = None'
-    def __init__(self, seed: int = None):
+    def __init__(self, seed: int | None = None):
         if seed is None:
             # Gera um número aleatório grande para ser a semente
             seed = random.randint(0, 999999999) 
